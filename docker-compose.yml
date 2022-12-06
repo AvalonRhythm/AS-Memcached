@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  memcached:
+    container_name: memcached
+    image: memcached
+    ports:
+    - '11211:11211'
+    entrypoint:
+    - memcached
+    - -m 64
+    
+  mysql:
+    container_name: mysql-server
+    build: ./mysql/
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'db'
+      MYSQL_ROOT_PASSWORD: 'root'
+    ports:
+      - '3307:3306'
+    
+  memcached-client:
+    container_name: memcached-client
+    build: ./python/
+    volumes:
+      - ./data:/usr/src/app/data
+    command: sh -c "sleep 20s ; python ./memcached.py"
+    depends_on:
+      - mysql
